@@ -4,6 +4,9 @@ const authorModel = require("../models/authorModel")
 const createAuthor = async function (req, res) {
   try {
     let data = req.body
+    if (Object.keys(data).length == 0) {
+      return res.status(400).send({ status: false, data: "Provide data details" });
+    }
     if (!data.fname) {
       return res.status(400).send({ status: false, masg: "First name is required" });
     }
@@ -22,10 +25,10 @@ const createAuthor = async function (req, res) {
 
     const validateEmail = (/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(data.email));
     if (!validateEmail) {
-      return res.send(400).send({ status: false, msg: "Invalid EmailID,Please check" });
+      return res.status(400).send({ status: false, msg: "Invalid EmailID,Please check" });
     }
 
-    let savedData = await authorModel.create(data)
+    let savedData = await authorModel.create(data) 
     res.status(201).send({ status: true, msg: savedData })
   }
   catch (err) {

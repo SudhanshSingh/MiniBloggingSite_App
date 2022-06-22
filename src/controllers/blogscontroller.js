@@ -37,7 +37,7 @@ const createBlogs = async function (req, res) {
         }
 
         if (!data.category) {
-            return res.status(400).send({ status: false, data: "data category is required" });
+            return res.status(400).send({ status: false, data: " category is required" });
         }
         if (Object.keys(data.category).length == 0 || data.category.length == 0) {
             return res.status(400).send({ status: false, data: "Enter a valid category" });
@@ -57,7 +57,7 @@ const createBlogs = async function (req, res) {
 
 
 
-const getBlogs = async function (req, res) { 
+const getBlogs = async function (req, res) {
     try {
         let query = req.query;
         let getBlog = await blogsModel.find({ $and: [{ isPublished: true, isDeleted: false, ...query }] }).populate("authorId")
@@ -85,11 +85,14 @@ const updateBlogs = async function (req, res) {
         }
         let blog = await blogsModel.findById(blogId)
         if (!blog) return res.status(404).send("id is incorrect")
-        if (blog.isDeleted) return res.status(404).send("id is incorrect")
+        if (blog.isDeleted) return res.status(404).send("id is deleted")
 
         const data = req.body;
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({ status: false, data: "Provide data details" });
+        } 
         if (data.category || data.authorId) {
-            return res.status(400).send({status:false, data: "You cannot change authorId or category"});
+            return res.status(400).send({ status: false, data: "You cannot change authorId or category" });
         }
         if (!data) return res.status(400).send({ status: false, msg: "Bad Request" });
 
@@ -97,7 +100,7 @@ const updateBlogs = async function (req, res) {
             {
                 title: data.title,
                 body: data.body,
-                $push: {tags: data.tags,subcategory: data.subcategory},
+                $push: { tags: data.tags, subcategory: data.subcategory },
                 isPublished: true,
                 publishedAt: new Date(),
             },
@@ -111,7 +114,7 @@ const updateBlogs = async function (req, res) {
     }
 }
 
-
+ 
 
 
 
@@ -126,9 +129,10 @@ let deleteBlogs = async function (req, res) {
 
         if (idvalidation.isDeleted == true) return res.status(404).send({ status: false, msg: "blog is allready deleted" })
         if (idvalidation.isDeleted == false) {
-            let validetion = await blogsModel.findOneAndUpdate({ _id: id }, { $set: { isDeleted: true, deletedAt: new Date() } },{ new: true })
+            let validetion = await blogsModel.findOneAndUpdate({ _id: id }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
         }
-        return res.status(200).send({ status: true, msg: "blog is deleted successfully" })
+        return res.status(200).send()
+
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message });
@@ -142,15 +146,23 @@ let deleteBlogs = async function (req, res) {
 
 const queryDeleted = async function (req, res) {
     try {
+        let category = req.query.category
         let authorId = req.query.authorId
-        let validation = await authorModel.findById(authorId)
-        if (!validation) return res.status(404).send({ status: false, msg: "Enter valid authorId" })
-        let q = req.query
-        let deleteData = await blogsModel.deleteOne({ authorId: authorId, category: q.category, subcategory: q.subcategory, tags: q.tags, isPublished: false, new: true })
-        res.status(200).send({ status: true, data: deleteData })
-    } 
+        let tags = req.query.tags
+        let subcategory = req.query.subcategory
+        let isPublished = req.query.isPublished
+        let data = await blogsModel.find({ $or: [{ category: category }, { authorId: authorId }, { tags: tags }, { subcategory: subcategory }, { isPublished: isPublished }] });
+        if (!data) {
+            return res.send({ status: false, message: "no such data exists" })
+        }
+        let Update = await blogsModel.updateMany({ $or: [{ category: category }, { authorId: authorId }, { tags: tags }, { subcategory: subcategory }, { isPublished: isPublished }] }, { $set: { isDeleted: true } }, { new: true })
+        if(Update.modifiedCount==0){
+            return res.status(404).send({status:false, msg:"no such data available"})
+        }
+        res.send({ status: true, data: Update })  
+    }
     catch (err) {
-        res.status(404).send({ status: false, Error: err.message })
+        res.status(500).send({ status: false, Error: err.message }) 
     }
 }
 
