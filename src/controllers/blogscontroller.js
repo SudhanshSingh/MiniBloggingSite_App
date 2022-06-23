@@ -1,6 +1,6 @@
 const authorModel = require("../models/authorModel")
 const blogsModel = require("../models/blogsModel")
-const { createAuthor } = require("./authorcontroller")
+
 
 
 const createBlogs = async function (req, res) {
@@ -10,17 +10,18 @@ const createBlogs = async function (req, res) {
             return res.status(400).send({ status: false, data: "Provide data details" });
         }
 
-        if (!data.title) {
+        else if (!data.title) {
             return res.status(400).send({ status: false, data: " title is required" });
         }
-        if (Object.keys(data.title).length == 0 || data.title.length == 0) {
+        else if (Object.values(data.title).length == 0) {
             return res.status(400).send({ status: false, data: "Enter a valid title" });
-        }
+            }
+    
 
-        if (!data.body) {
+        else if (!data.body) {
             return res.status(400).send({ status: false, data: "body is required" });
         }
-        if (Object.keys(data.body).length == 0 || data.body.length == 0) {
+        else if (Object.values(data.body).length == 0 || data.body.length == 0) {
             return res.status(400).send({ status: false, msg: "Enter a valid body" });
         }
 
@@ -28,7 +29,7 @@ const createBlogs = async function (req, res) {
         if (!authorData) {
             return res.status(400).send({ status: false, data: "authorId is required" });
         }
-        if (Object.keys(authorData).length == 0 || authorData.length == 0) {
+        else if (Object.values(authorData).length == 0 || authorData.length == 0) {
             return res.status(400).send({ status: false, data: "Enter a valid authorId" });
         }
         const check = await authorModel.findById({ _id: authorData }).select(({ _id: 1 }))
@@ -36,15 +37,16 @@ const createBlogs = async function (req, res) {
             return res.status(404).send({ status: false, msg: "not a valid Author" })
         }
 
-        if (!data.category) {
+        else if (!data.category) {
             return res.status(400).send({ status: false, data: " category is required" });
         }
-        if (Object.keys(data.category).length == 0 || data.category.length == 0) {
+        else if (Object.values(data.category).length == 0 || data.category.length == 0) {
             return res.status(400).send({ status: false, data: "Enter a valid category" });
         }
-
+        else {
         let savedData = await blogsModel.create(data)
         res.status(201).send({ status: true, msg: savedData })
+        }
     }
     catch (err) {
         console.log(err)
@@ -84,7 +86,7 @@ const updateBlogs = async function (req, res) {
             return res.status(400).send({ status: false, data: "Please enter a blog id" })
         }
         let blog = await blogsModel.findById(blogId)
-        if (!blog) return res.status(404).send("id is incorrect")
+        if (!blog) return res.status(404).send("id is incorrect") 
         if (blog.isDeleted) return res.status(404).send("id is deleted")
 
         const data = req.body;
@@ -147,7 +149,7 @@ let deleteBlogs = async function (req, res) {
 const queryDeleted = async function (req, res) {
     try {
         let category = req.query.category
-        let authorId = req.query.authorId
+        let authorId = req.query.authorId 
         let tags = req.query.tags
         let subcategory = req.query.subcategory
         let isPublished = req.query.isPublished
@@ -157,9 +159,9 @@ const queryDeleted = async function (req, res) {
         }
         let Update = await blogsModel.updateMany({ $or: [{ category: category }, { authorId: authorId }, { tags: tags }, { subcategory: subcategory }, { isPublished: isPublished }] }, { $set: { isDeleted: true } }, { new: true })
         if(Update.modifiedCount==0){
-            return res.status(404).send({status:false, msg:"no such data available"})
+            return res.status(404).send({status:true, msg:"no such data available now"})
         }
-        res.send({ status: true, data: Update })  
+        // res.send({ status: true, data: Update })  
     }
     catch (err) {
         res.status(500).send({ status: false, Error: err.message }) 

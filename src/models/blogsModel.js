@@ -4,7 +4,7 @@ const ObjectId=mongoose.Schema.Types.ObjectId;
 const blogsSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        // required: true
     },
     body: {
         type: String,
