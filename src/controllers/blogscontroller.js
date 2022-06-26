@@ -4,6 +4,10 @@ const blogsModel = require("../models/blogsModel")
 
 
 
+
+//========================================= 3-CreateBlog Api =========================================================//
+
+
 const createBlogs = async function (req, res) {
     try {
         let data = req.body
@@ -14,14 +18,14 @@ const createBlogs = async function (req, res) {
         if (!data.title) {
             return res.status(400).send({ status: false, msg: " title is required" });
         }
-        if (!isNaN(data.title)) {
+        if (!data.title.match(/^[a-zA-Z]+$/)) {
             return res.status(400).send({ status: false, msg: "enter valid title" });
         }
 
         if (!data.body) {
             return res.status(400).send({ status: false, msg: "body is required" });
         }
-        if (!isNaN(data.body)) {
+        if (!data.body.match(/^[a-zA-Z]+$/)) {
             return res.status(400).send({ status: false, msg: "enter valid body" });
         }
 
@@ -40,7 +44,7 @@ const createBlogs = async function (req, res) {
         if (!data.category) {
             return res.status(400).send({ status: false, msg: " category is required" });
         }
-        if (!isNaN(data.category)) {
+        if (!data.category.match(/^[a-zA-Z]+$/)) {
             return res.status(400).send({ status: false, msg: "enter valid catagory" });
         }
 
@@ -64,16 +68,12 @@ const createBlogs = async function (req, res) {
 
 
 
+//========================================= 4-Get Blogs Data =========================================================//
+
 
 const getBlogs = async function (req, res) {
     try {
         let data = req.query;
-        // let authorId = req.query.authorId
-        // if (!mongoose.isValidObjectId(data.authorId)) return res.send({status: false, msg:"wrong author id"})
-        // let valid = await authorModel.findById(authorId)
-        // if (!valid) {
-        //     return res.status(404).send({ status: false, msg: "enter valid authorID" })
-        // }
 
         let getBlog = await blogsModel.find({ $and: [data, { isPublished: true, isDeleted: false }] }).populate("authorId")
         if (getBlog.length == 0) {
@@ -91,13 +91,12 @@ const getBlogs = async function (req, res) {
 
 
 
+//========================================= 5-UpdateBlogs Api =========================================================//
+
 
 const updateBlogs = async function (req, res) {
     try {
         let blogId = req.params.blogId
-        // if (!blogId) {
-        //     return res.status(400).send({ status: false, data: "Please enter a blog id" })
-        // }
 
         const data = req.body;
         if (Object.keys(data).length == 0) {
@@ -130,6 +129,8 @@ const updateBlogs = async function (req, res) {
 
 
 
+//====================================== 6-DeletedBlog By Path Param Id =============================================//
+
 
 let deleteBlogs = async function (req, res) {
     try {
@@ -152,6 +153,7 @@ let deleteBlogs = async function (req, res) {
 
 
 
+//======================================= 7-DeletedBlog By Query Param ===============================================//
 
 
 const queryDeleted = async function (req, res) {

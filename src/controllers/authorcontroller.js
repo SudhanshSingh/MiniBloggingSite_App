@@ -3,25 +3,28 @@ const jwt = require("jsonwebtoken");
 
 
 
+//=========================================== 1-Create Author Api ====================================================//
+
+
 const createAuthor = async function (req, res) {
   try {
     let data = req.body
-
+ 
     if (Object.keys(data).length == 0) {
       return res.status(400).send({ status: false, msg: "Please provide details" });
     }
 
     if (!data.fname) {
       return res.status(400).send({ status: false, msg: "First name is required" });
-    }
-    if (!isNaN(data.fname)) {
+    } 
+    if (!data.fname.match(/^[a-zA-Z]+$/)) {
       return res.status(400).send({ status: false, msg: "Not a valid first name" });
     }
     
     if (!data.lname) {
       return res.status(400).send({ status: false, msg: "Last name is required" });
     }
-    if (!isNaN(data.lname)) {
+    if (!data.lname.match(/^[a-zA-Z]+$/)) {
       return res.status(400).send({ status: false, msg: "Not a valid last name" });
     }
 
@@ -49,12 +52,7 @@ const createAuthor = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Password is required" });
     }
     
-
-    let checkAuthor=await authorModel.findOne(data)
-    if(checkAuthor) {
-      return res.status(400).send({ status: false, msg: "Author already exists" })
-    }
-
+    
     let savedData = await authorModel.create(data)
     res.status(201).send({ status: true, data: savedData })
   }
@@ -67,7 +65,7 @@ const createAuthor = async function (req, res) {
 
 
 
-
+//============================================ 2-Login and Token Generation Api =====================================//
 
 
 const loginAuthor = async function (req, res) {
