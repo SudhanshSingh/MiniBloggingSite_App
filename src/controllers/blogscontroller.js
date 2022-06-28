@@ -89,6 +89,8 @@ const isValidRequestBody= function(requestBody){
 
 const getBlogs = async function (req, res) {
     try {
+
+        //filter the data which isn't deleted and being published
         const filterQuery= { isPublished: true, isDeleted: false }
         let queryparams = req.query;
 
@@ -97,7 +99,7 @@ const getBlogs = async function (req, res) {
             let authorId = req.query.authorId
             let tags = req.query.tags
             let subcategory = req.query.subcategory
-        }
+        
 
         if (authorId && mongoose.isValidObjectId(authorId)){
             filterQuery['authorId']= authorId
@@ -113,14 +115,14 @@ const getBlogs = async function (req, res) {
             const subcatArr =subcategory.trim().split(',').map(subcat=> subcat.trim())
             filterQuery['subcategory']={$all: subcatArr}
         }
-
+    }
         const blogs= await blogsModel.find(filterQuery)
 
         if (Array.isArray(blogs) && blogs.length==0){
             return res.status(404).send({ data: "No such document exist with the given attributes." });
         }
 
-        res.status(200).send({ status: true, data: getBlog })
+        res.status(200).send({ status: true, data: blogs })
     }
     catch (err) {
         console.log(err)
@@ -152,7 +154,7 @@ const updateBlogs = async function (req, res) {
             {
                 title: data.title,
                 body: data.body,
-                $push: { tags: data.tags, subcategory: data.subcategory },
+                $push: { tags: data.tags, subcategory: data.subcategory }, //$push used because it is assumed that data is getting added 
                 isPublished: true,
                 publishedAt: new Date(),
             },
@@ -177,7 +179,7 @@ let deleteBlogs = async function (req, res) {
     try {
         let id = req.params.blogId
         
-
+        //finding id in database  
         let idvalidation = await blogsModel.findById(id)
         
         if (idvalidation.isDeleted == false) {
@@ -204,6 +206,7 @@ const queryDeleted = async function (req, res) {
         let tags = req.query.tags
         let subcategory = req.query.subcategory
         let isPublished = req.query.isPublished
+        
         let data = await blogsModel.find({ $or: [{ category: category }, { authorId: authorId }, { tags: tags }, { subcategory: subcategory }, { isPublished: isPublished }] });
         if (!data) {
             return res.send({ status: false, message: "no such data exists" })
