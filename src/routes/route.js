@@ -1,27 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
-const AuthController= require("../controllers/authorcontroller")
-const BlogsController= require("../controllers/blogscontroller")
-const MW= require("../middleware/auth")
+const { createAuthor, loginAuthor } = require('../controllers/authorcontroller');
+const { authenticate, authorise, delQueryAuth } = require('../middleware/auth');
+const { createBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = require('../controllers/blogscontroller');
 
 
 
+//=========================================== Author API'S ==============================================//
 
-//=========================================== Unprotected API'S ================================================//
-
-router.post("/authors", AuthController.createAuthor )
-router.post("/login", AuthController.loginAuthor)
-
-
-//=========================================== protected API'S ================================================//
-
-router.post("/blogs",MW.authenticate, BlogsController.createBlogs )
-router.get("/blogs",MW.authenticate, BlogsController.getBlogs )
-router.put("/blogs/:blogId",MW.authenticate,MW.authorise, BlogsController.updateBlogs )
-router.delete("/blogs/:blogId",MW.authenticate,MW.authorise, BlogsController.deleteBlogs )
-router.delete("/blogs",MW.authenticate,MW.authorise, BlogsController.queryDeleted )
+router.post("/authors", createAuthor )
+router.post("/login", loginAuthor)
 
 
+//=========================================== Blog API'S ================================================//
+
+router.post("/blogs",authenticate, createBlogs )
+router.get("/blogs",authenticate, getBlogs )
+router.put("/blogs/:blogId",authenticate,authorise, updateBlogs )
+router.delete("/blogs/:blogId",authenticate,authorise, deleteBlogs )
+router.delete("/blogs",authenticate,delQueryAuth, queryDeleted )
+
+
+
+router.all('/*', function (res) {
+    res.status(400).send({ status: false, messsage: "invalid http request" })
+})
 
 module.exports = router; 

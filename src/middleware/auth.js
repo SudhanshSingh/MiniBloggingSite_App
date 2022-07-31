@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
-const blogsModel = require("../models/blogsModel") 
+const mongoose = require("mongoose");
+const blogsModel = require("../models/blogsModel")
 
 
 
-//================================================= Authentication ==================================================//
+//=========================================== Authentication ==================================================//
 
 
 const authenticate = async function (req, res, next) {
@@ -14,52 +15,45 @@ const authenticate = async function (req, res, next) {
     }
     //If no token is present in the request header return error
     if (!token) {
-
       return res.status(400).send({ status: false, msg: "token must be present" });
     }
-    // console.log(token);
-    try {
-      let decodedToken = jwt.verify(token, "functionUp-radon");
+
+    let decodedToken = jwt.verify(token, "functionUp-radon");
+    if (!decodedToken) {
+      return res.status(403).send({ status: false, msg: "token is invalid" });
     }
-    catch {
-      return res.status(500).send({ status: false, msg: "token is invalid" });
-    }
+    req.authorId = decodedToken.authorId
+    next()
   }
   catch (error) {
-    console.log(error.message)
     res.status(500).send({ msg: " Server Error", error: error.message })
   }
-  next()
 }
 
 
 
 
 
-//================================================= Authorization ==================================================//
+//============================================ Authorization ==================================================//
 
 
 const authorise = async function (req, res, next) {
   try {
-    let token = req.headers["x-api-key"];
-    if (!token) {
-      return res.status(400).send({ status: false, msg: "token must be present" });
-    }
-    let decodedToken = jwt.verify(token, "functionUp-radon");
-
     let blogId = req.params.blogId
-    let blog = await blogsModel.findById(blogId)
 
+    if (!mongoose.isValidObjectId(blogId)) {
+      return res.status(400).send({ status: false, msg: "BlogId must be a valid ObjectId" })
+    }
+
+    let blog = await blogsModel.findById(blogId)
     if (!blog) {
-      return res.status(404).send({ status: false, msg: "blog does not exists" })
+      return res.status(404).send({ status: false, msg: "blog does not exists in db collection" })
     }
     if (blog.isDeleted) {
-      return res.status(404).send( {status: false, msg: "blog is already deleted"} )
+      return res.status(404).send({ status: false, msg: "blog is already deleted" })
     }
-    
-    let authorLoggedIn = decodedToken.authorId
 
-    if (blog.authorId != authorLoggedIn) {
+    if (blog.authorId != req.authorId) {
       return res.status(403).send({ status: false, msg: 'author logged is not allowed to modify the requested users data' })
     }
     next()
@@ -71,6 +65,32 @@ const authorise = async function (req, res, next) {
 
 
 
+const delQueryAuth = function (req, res, next) {
 
-module.exports.authenticate = authenticate
-module.exports.authorise = authorise
+  try {
+    let authorLoggedId = req.authorId
+
+    let authorId = req.query.authorId
+
+    //validation of authorId
+    if (authorId) {
+      if (!mongoose.isValidObjectId(authorId)) {
+        return res.status(400).send({ status: false, msg: "Not a valid author ID from Token" })
+      }
+      if (authorId != authorLoggedId) {
+        return res.status(403).send({ status: false, error: "Unauthorized access" })
+      }
+    }
+    if (!authorId) {
+      authorId = authorLoggedId;
+      req.query.authorId = authorLoggedId;
+    }
+    next();
+  }
+  catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+
+}
+
+module.exports = { authenticate, authorise,delQueryAuth }
