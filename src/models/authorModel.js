@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const authorSchema = new mongoose.Schema( {
+const authorSchema = new mongoose.Schema({
     fname: {
         type: String,
         required: true
@@ -14,15 +14,15 @@ const authorSchema = new mongoose.Schema( {
         enum: ["Mr", "Mrs", "Miss"],
         required: true
     },
-    email:{
+    email: {
         type: String,
         unique: true,
-        required: true 
+        required: true
     },
     password: {
         type: String,
         required: true
-    },  
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Author', authorSchema) 

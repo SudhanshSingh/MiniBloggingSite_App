@@ -105,7 +105,7 @@ const getBlogs = async function (req, res) {
                 if (Object.keys(authorId).length === 0) {
                     return res.status(400).send({ status: false, message: 'authorId query is empty, either provide query value or deselect it.' })
                 }
-                if(!mongoose.isValidObjectId(authorId)){
+                if (!mongoose.isValidObjectId(authorId)) {
                     return res.status(400).send({ status: false, message: 'AuthorId must be a valid ObjectId' })
                 }
                 filterQuery['authorId'] = authorId

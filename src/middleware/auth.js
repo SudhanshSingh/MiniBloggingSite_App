@@ -65,8 +65,10 @@ const authorise = async function (req, res, next) {
 
 
 
-const delQueryAuth = function (req, res, next) {
+//====================================== Authorization for delete Query ==========================================//
 
+
+const delQueryAuth = function (req, res, next) {
   try {
     let authorLoggedId = req.authorId
 
@@ -90,7 +92,6 @@ const delQueryAuth = function (req, res, next) {
   catch (error) {
     res.status(500).send({ error: error.message })
   }
-
 }
 
-module.exports = { authenticate, authorise,delQueryAuth }
+module.exports = { authenticate, authorise, delQueryAuth }

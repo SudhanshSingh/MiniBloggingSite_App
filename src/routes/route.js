@@ -9,21 +9,21 @@ const { createBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = requir
 
 //=========================================== Author API'S ==============================================//
 
-router.post("/authors", createAuthor )
+router.post("/authors", createAuthor)
 router.post("/login", loginAuthor)
 
 
 //=========================================== Blog API'S ================================================//
 
-router.post("/blogs",authenticate, createBlogs )
-router.get("/blogs",authenticate, getBlogs )
-router.put("/blogs/:blogId",authenticate,authorise, updateBlogs )
-router.delete("/blogs/:blogId",authenticate,authorise, deleteBlogs )
-router.delete("/blogs",authenticate,delQueryAuth, queryDeleted )
+router.post("/blogs", authenticate, createBlogs)
+router.get("/blogs", authenticate, getBlogs)
+router.put("/blogs/:blogId", authenticate, authorise, updateBlogs)
+router.delete("/blogs/:blogId", authenticate, authorise, deleteBlogs)
+router.delete("/blogs", authenticate, delQueryAuth, queryDeleted)
 
 
 
-router.all('/*', function (res) {
+router.all('/*', function (req, res) {
     res.status(400).send({ status: false, messsage: "invalid http request" })
 })
 

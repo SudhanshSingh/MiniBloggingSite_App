@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const ObjectId=mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const blogsSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        minlength:1
+        minlength: 1
     },
     body: {
         type: String,
@@ -14,7 +14,7 @@ const blogsSchema = new mongoose.Schema({
     authorId: {
         type: ObjectId,
         required: true,
-        ref: "Author",
+        ref: "Author"
     },
     tags: {
         type: [String]
@@ -27,7 +27,7 @@ const blogsSchema = new mongoose.Schema({
         type: [String]
     },
     deletedAt: {
-        type: Date,       
+        type: Date
     },
     isDeleted: {
         type: Boolean,
