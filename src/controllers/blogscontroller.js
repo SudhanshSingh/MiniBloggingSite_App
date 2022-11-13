@@ -9,7 +9,7 @@ const isValid = function (value) {
 };
 
 const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0
+    return Object.keys(requestBody).length > 0;
 }
 
 
@@ -21,10 +21,10 @@ const createBlogs = async function (req, res) {
         const requestBody = req.body;
 
         if (!isValidRequestBody(requestBody)) {
-            return res.status(400).send({ status: false, msg: "Please provide Blogs details" })
+            return res.status(400).send({ status: false, msg: "Please provide Blogs details" });
         }
         //Object Destructuring
-        let { title, body, authorId, tags, category, subcategory, isPublished } = requestBody
+        let { title, body, authorId, tags, category, subcategory, isPublished } = requestBody;
 
         //title validation
         if (!isValid(title)) {
@@ -42,11 +42,11 @@ const createBlogs = async function (req, res) {
             return res.status(400).send({ status: false, msg: "authorId is required" });
         }
         if (!mongoose.isValidObjectId(authorData)) {
-            return res.status(400).send({ status: false, msg: "AuthorId must be a valid ObjectId" })
+            return res.status(400).send({ status: false, msg: "AuthorId must be a valid ObjectId" });
         }
-        const check = await authorModel.findById({ _id: authorData }).select(({ _id: 1 }))
+        const check = await authorModel.findById({ _id: authorData }).select(({ _id: 1 }));
         if (!check) {
-            return res.status(404).send({ status: false, msg: "AuthorId is not Present" })
+            return res.status(404).send({ status: false, msg: "AuthorId is not Present" });
         }
 
         //category validation
@@ -76,14 +76,14 @@ const createBlogs = async function (req, res) {
             subcategory: subcategory,
             isPublished: isPublished ? isPublished : false,
             publishedAt: isPublished ? new Date() : null
-        }
+        };
 
         //Blogs creation
-        let savedData = await blogsModel.create(blogData)
-        return res.status(201).send({ status: true, data: savedData })
+        let savedData = await blogsModel.create(blogData);
+        return res.status(201).send({ status: true, data: savedData });
     }
     catch (err) {
-        return res.status(500).send({ status: false, msg: err.message })
+        return res.status(500).send({ status: false, msg: err.message });
     }
 }
 
@@ -95,54 +95,54 @@ const createBlogs = async function (req, res) {
 const getBlogs = async function (req, res) {
     try {
         //filter the data which isn't deleted and being published
-        const filterQuery = { isPublished: true, isDeleted: false }
+        const filterQuery = { isPublished: true, isDeleted: false };
         let queryparams = req.query;
 
         if (isValidRequestBody(queryparams)) {
-            let { category, authorId, tags, subcategory } = queryparams
+            let { category, authorId, tags, subcategory } = queryparams;
 
             if ("authorId" in queryparams) {
                 if (Object.keys(authorId).length === 0) {
-                    return res.status(400).send({ status: false, message: 'authorId query is empty, either provide query value or deselect it.' })
+                    return res.status(400).send({ status: false, message: 'authorId query is empty, either provide query value or deselect it.' });
                 }
                 if (!mongoose.isValidObjectId(authorId)) {
-                    return res.status(400).send({ status: false, message: 'AuthorId must be a valid ObjectId' })
+                    return res.status(400).send({ status: false, message: 'AuthorId must be a valid ObjectId' });
                 }
-                filterQuery['authorId'] = authorId
+                filterQuery['authorId'] = authorId;
             }
 
             if ("category" in queryparams) {
                 if (Object.keys(category).length === 0) {
-                    return res.status(400).send({ status: false, message: 'category query is empty, either provide query value or deselect it.' })
+                    return res.status(400).send({ status: false, message: 'category query is empty, either provide query value or deselect it.' });
                 }
-                filterQuery['category'] = category.trim()
+                filterQuery['category'] = category.trim();
             }
 
             if ("tags" in queryparams) {
                 if (Object.keys(tags).length === 0) {
-                    return res.status(400).send({ status: false, message: 'tags query is empty, either provide query value or deselect it.' })
+                    return res.status(400).send({ status: false, message: 'tags query is empty, either provide query value or deselect it.' });
                 }
-                const tagsArr = tags.trim().split(',').map(tag => tag.trim())
-                filterQuery['tags'] = { $all: tagsArr }
+                const tagsArr = tags.trim().split(',').map(tag => tag.trim());
+                filterQuery['tags'] = { $all: tagsArr };
             }
 
             if ("subcategory" in queryparams) {
                 if (Object.keys(subcategory).length === 0) {
-                    return res.status(400).send({ status: false, message: 'subcategory query is empty, either provide query value or deselect it.' })
+                    return res.status(400).send({ status: false, message: 'subcategory query is empty, either provide query value or deselect it.' });
                 }
-                const subcatArr = subcategory.trim().split(',').map(subcat => subcat.trim())
-                filterQuery['subcategory'] = { $all: subcatArr }
+                const subcatArr = subcategory.trim().split(',').map(subcat => subcat.trim());
+                filterQuery['subcategory'] = { $all: subcatArr };
             }
         }
-        const blogs = await blogsModel.find(filterQuery)
 
+        const blogs = await blogsModel.find(filterQuery);
         if (blogs.length == 0) {
             return res.status(404).send({ status: false, msg: "No such document exist with the given attributes." });
         }
-        res.status(200).send({ status: true, data: blogs })
+        return res.status(200).send({ status: true, data: blogs });
     }
     catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
+        return res.status(500).send({ status: false, msg: err.message });
     }
 }
 
@@ -155,7 +155,7 @@ const getBlogs = async function (req, res) {
 
 const updateBlogs = async function (req, res) {
     try {
-        let blogId = req.params.blogId
+        let blogId = req.params.blogId;
 
         const data = req.body;
         if (Object.keys(data).length == 0) {
@@ -174,10 +174,10 @@ const updateBlogs = async function (req, res) {
                 publishedAt: new Date(),
             }, { new: true, upsert: true });
 
-        res.status(200).send({ status: true, message: "Blog update is successful", data: updatedDetails });
+        return res.status(200).send({ status: true, message: "Blog update is successful", data: updatedDetails });
     }
     catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
+        return res.status(500).send({ status: false, msg: err.message });
     }
 }
 
@@ -190,14 +190,14 @@ const updateBlogs = async function (req, res) {
 
 let deleteBlogs = async function (req, res) {
     try {
-        let blog = req.params.blogId
+        let blog = req.params.blogId;
 
-        await blogsModel.findOneAndUpdate({ _id: blog }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
+        await blogsModel.findOneAndUpdate({ _id: blog }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true });
 
-        return res.status(200).send({ status: true, message: "Blog deleted Successfully..." })
+        return res.status(200).send({ status: true, message: "Blog deleted Successfully..." });
     }
     catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
+        return res.status(500).send({ status: false, msg: err.message });
     }
 }
 
@@ -209,56 +209,56 @@ let deleteBlogs = async function (req, res) {
 
 const queryDeleted = async function (req, res) {
     try {
-        let query = req.query
-        const { category, authorId, tags, subcategory, isPublished } = query
+        let query = req.query;
+        const { category, authorId, tags, subcategory, isPublished } = query;
 
-        const filterQuery = { isDeleted: false }
+        const filterQuery = { isDeleted: false };
 
         if (authorId) {
-            filterQuery['authorId'] = authorId
+            filterQuery['authorId'] = authorId;
         }
         if ("category" in query) {
             if (Object.keys(category).length === 0) {
-                return res.status(400).send({ status: false, message: 'category query is empty, either provide query value or deselect it.' })
+                return res.status(400).send({ status: false, message: 'category query is empty, either provide query value or deselect it.' });
             }
-            filterQuery['category'] = category.trim()
+            filterQuery['category'] = category.trim();
         }
 
         if ("isPublished" in query) {
             if (Object.keys(isPublished).length === 0) {
-                return res.status(400).send({ status: false, message: 'isPublished query is empty, either provide query value or deselect it.' })
+                return res.status(400).send({ status: false, message: 'isPublished query is empty, either provide query value or deselect it.' });
             }
             if (typeof isPublished !== 'boolean') {
-                return res.status(400).send({ status: false, error: "not published" })
+                return res.status(400).send({ status: false, error: "not published" });
             }
-            filterQuery['isPublished'] = isPublished.trim()
+            filterQuery['isPublished'] = isPublished.trim();
         }
 
         if ("tags" in query) {
             if (Object.keys(tags).length === 0) {
-                return res.status(400).send({ status: false, message: 'tags query is empty, either provide query value or deselect it.' })
+                return res.status(400).send({ status: false, message: 'tags query is empty, either provide query value or deselect it.' });
             }
-            const tagsArr = tags.trim().split(',').map(tag => tag.trim())
-            filterQuery['tags'] = { $all: tagsArr }
+            const tagsArr = tags.trim().split(',').map(tag => tag.trim());
+            filterQuery['tags'] = { $all: tagsArr };
         }
 
         if ("subcategory" in query) {
             if (Object.keys(subcategory).length === 0) {
-                return res.status(400).send({ status: false, message: 'subcategory query is empty, either provide query value or deselect it.' })
+                return res.status(400).send({ status: false, message: 'subcategory query is empty, either provide query value or deselect it.' });
             }
-            const subcatArr = subcategory.trim().split(',').map(subcat => subcat.trim())
-            filterQuery['subcategory'] = { $all: subcatArr }
+            const subcatArr = subcategory.trim().split(',').map(subcat => subcat.trim());
+            filterQuery['subcategory'] = { $all: subcatArr };
         }
 
-        let dataToDelete = await blogsModel.updateMany(filterQuery, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
+        let dataToDelete = await blogsModel.updateMany(filterQuery, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true });
 
         if (dataToDelete.modifiedCount == 0) {
-            return res.status(404).send({ status: false, message: "Given query param does not exist or Blog is already deleted" })
+            return res.status(404).send({ status: false, message: "Given query param does not exist or Blog is already deleted" });
         }
-        res.status(200).send({ status: true, msg: "Blogs deleted Successfully..." })
+        return res.status(200).send({ status: true, msg: "Blogs deleted Successfully..." });
     }
     catch (err) {
-        res.status(500).send({ status: false, Error: err.message });
+        return res.status(500).send({ status: false, Error: err.message });
     }
 }
 

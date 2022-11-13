@@ -1,4 +1,4 @@
-const authorModel = require("../models/authorModel")
+const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
 
 
@@ -9,10 +9,10 @@ const isValid = function (value) {
 };
 
 const isValidRequestBody = function (requestBody) {
-  return Object.keys(requestBody).length > 0
+  return Object.keys(requestBody).length > 0;
 }
 
-const emailRegex = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
+const emailRegex = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/;
 
 
 
@@ -22,9 +22,9 @@ const createAuthor = async function (req, res) {
   try {
     const requestBody = req.body;
     if (!isValidRequestBody(requestBody)) {
-      res.status(400).send({ status: false, msg: "Please provide Author details" })
+      return res.status(400).send({ status: false, msg: "Please provide Author details" });
     }
-    let { fname, lname, title, email, password } = requestBody   //Object Destructuring
+    let { fname, lname, title, email, password } = requestBody;  //Object Destructuring
 
     //fname validation 
     if (!isValid(fname)) {
@@ -47,7 +47,7 @@ const createAuthor = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Title is required" });
     }
     if (["Mr", "Mrs", "Miss"].indexOf(title.trim()) == -1) {
-      return res.status(400).send({ status: false, msg: "title must be 'Mr', 'Mrs' or 'Miss' only" })
+      return res.status(400).send({ status: false, msg: "title must be 'Mr', 'Mrs' or 'Miss' only" });
     }
 
     //email validation
@@ -58,9 +58,9 @@ const createAuthor = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Invalid emailid format,Please check" });
     }
     //checking if email is already in use
-    let emailCheck = await authorModel.findOne({ email: email.trim() })
+    let emailCheck = await authorModel.findOne({ email: email.trim() });
     if (emailCheck) {
-      return res.status(400).send({ status: false, msg: "Email-Id already Registerd" })
+      return res.status(409).send({ status: false, msg: "Email-Id already Registerd" });
     }
 
     //password validation
@@ -75,13 +75,13 @@ const createAuthor = async function (req, res) {
       title: title.trim(),
       email: email.trim(),
       password: password.trim()
-    }
+    };
 
-    let savedData = await authorModel.create(authorData)
-    res.status(201).send({ status: true, data: savedData })
+    let savedData = await authorModel.create(authorData);
+    return res.status(201).send({ status: true, data: savedData });
   }
   catch (err) {
-    res.status(500).send({ status: false, msg: err.message })
+    return res.status(500).send({ status: false, msg: err.message });
   }
 }
 
@@ -93,38 +93,36 @@ const createAuthor = async function (req, res) {
 
 const loginAuthor = async function (req, res) {
   try {
-    let email = req.body.email
-    let password = req.body.password
+    let email = req.body.email;
+    let password = req.body.password;
 
     if (!isValid(email)) {
-      return res.status(400).send({ status: false, message: "Please enter Email Id" })
+      return res.status(400).send({ status: false, message: "Please enter Email Id" });
     }
     if (!emailRegex.test(email.trim())) {
-      return res.status(400).send({ status: false, message: "Email is not valid" })
+      return res.status(400).send({ status: false, message: "Email is not valid" });
     }
 
     if (!isValid(password)) {
-      return res.status(400).send({ status: false, message: "Please enter Password" })
+      return res.status(400).send({ status: false, message: "Please enter Password" });
     }
 
     //Finding credentials 
-    let user = await authorModel.findOne({ email: email.trim(), password: password.trim() })
+    let user = await authorModel.findOne({ email: email.trim(), password: password.trim() });
     if (!user) {
-      return res.status(404).send({ status: false, msg: "Invalid credential" })
+      return res.status(404).send({ status: false, msg: "Invalid credential" });
     }
 
     //Token generation
     let token = jwt.sign({
       authorId: user._id.toString(),
-    },
-      "functionUp-radon"
-    );
-    res.setHeader("x-api-key", token);
+    }, "functionUp-radon");
 
-    res.status(200).send({ status: true, data: { token } });
+    res.setHeader("x-api-key", token);
+    return res.status(200).send({ status: true, data: { token } });
   }
   catch (err) {
-    res.status(500).send({ status: false, msg: err.message })
+    return res.status(500).send({ status: false, msg: err.message });
   }
 };
 
