@@ -90,7 +90,7 @@ const delQueryAuth = function (req, res, next) {
     next();
   }
   catch (error) {
-    return res.status(500).send({ error: error.message })
+    return res.status(500).send({ error: error.message });
   }
 }
 
