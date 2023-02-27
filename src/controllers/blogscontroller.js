@@ -59,10 +59,11 @@ const createBlogs = async function (req, res) {
 
         //isPublished validation
         if (isPublished) {
+            console.log(isPublished)
             if (!isValid(isPublished)) {
                 return res.status(400).send({ status: false, message: "Please enter isPublished or remove this section" });
             }
-            if (!['true', 'false'].includes(isPublished)) {
+            if (![true, false].includes(isPublished)) {
                 return res.status(400).send({ status: false, message: "isPublished should be either 'true' or 'false'" });
             }
         }
@@ -80,7 +81,7 @@ const createBlogs = async function (req, res) {
 
         //Blogs creation
         let savedData = await blogsModel.create(blogData);
-        return res.status(201).send({ status: true, data: savedData });
+        return res.status(201).send({ status: true,message:'Author created Successfully', data: savedData });
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message });
@@ -147,7 +148,12 @@ const getBlogs = async function (req, res) {
 }
 
 
+//============================Get All Blog Api==================================/////////
 
+const getAllBlogs=async(req,res)=>{
+    let resData= await blogsModel.find()
+    return res.status(200).send({status:true,message:'All blogs data',data:resData})
+}
 
 
 //========================================= 5-UpdateBlogs Api ====================================================//
@@ -264,4 +270,4 @@ const queryDeleted = async function (req, res) {
 
 
 
-module.exports = { createBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted }
+module.exports = { createBlogs, getBlogs,getAllBlogs, updateBlogs, deleteBlogs, queryDeleted }

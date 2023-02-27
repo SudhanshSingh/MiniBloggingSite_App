@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { createAuthor, loginAuthor } = require('../controllers/authorcontroller');
 const { authenticate, authorise, delQueryAuth } = require('../middleware/auth');
-const { createBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = require('../controllers/blogscontroller');
+const { createBlogs,getAllBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = require('../controllers/blogscontroller');
 
 
 
@@ -16,6 +16,7 @@ router.post("/login", loginAuthor);
 //=========================================== Blog API'S ================================================//
 
 router.post("/blogs", authenticate, createBlogs);
+router.get("/allblogs", authenticate, getAllBlogs);
 router.get("/blogs", authenticate, getBlogs);
 router.put("/blogs/:blogId", authenticate, authorise, updateBlogs);
 router.delete("/blogs/:blogId", authenticate, authorise, deleteBlogs);

@@ -110,19 +110,19 @@ const loginAuthor = async function (req, res) {
     //Finding credentials 
     let user = await authorModel.findOne({ email: email.trim(), password: password.trim() });
     if (!user) {
-      return res.status(404).send({ status: false, msg: "Invalid credential" });
+      return res.status(404).send({ status: false, message: "Invalid credential" });
     }
 
     //Token generation
-    let token = jwt.sign({
+    let token =  jwt.sign({
       authorId: user._id.toString(),
     }, "functionUp-radon");
-
+     //console.log(token)
     res.setHeader("x-api-key", token);
-    return res.status(200).send({ status: true, data: { token } });
+    return res.status(200).send({ status: true,message: "user logged in successfully", data: { token } });
   }
   catch (err) {
-    return res.status(500).send({ status: false, msg: err.message });
+    return res.status(500).send({ status: false, message: err.message });
   }
 };
 
