@@ -1,0 +1,39 @@
+
+.nav div{
+    display: inline-block;
+  }
+  .nav .heading{
+    text-align: left;
+  }
+  .navbar {
+    text-align: right;
+  }
+  .navbar li{
+    display: inline-block;
+    padding: 10px 5px;
+    color: chocolate;
+   
+  }
+  .heading {
+    position: absolute;
+    left: 11px;
+    color: brown;
+    
+  }
+  .navbar {
+    position: relative;
+    left: 450px;
+    
+  }
+  .navbar .active{
+    color: skyblue;
+  
+  }
+  .navbar-link{
+    color: rgb(255, 0, 0);
+    text-decoration: none;
+  }
+  .navbar-link:hover{
+    color: rgb(13, 0, 255);
+    
+  }
