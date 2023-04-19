@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const path=require("path")
 
 const { createAuthor, loginAuthor } = require('../controllers/authorcontroller');
 const { authenticate, authorise, delQueryAuth } = require('../middleware/auth');
-const { createBlogs,getAllBlogs, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = require('../controllers/blogscontroller');
+const { createBlogs,getBlogsById, getBlogs, updateBlogs, deleteBlogs, queryDeleted } = require('../controllers/blogscontroller');
 
 
 
@@ -16,16 +17,18 @@ router.post("/login", loginAuthor);
 //=========================================== Blog API'S ================================================//
 
 router.post("/blogs", authenticate, createBlogs);
-router.get("/allblogs", authenticate, getAllBlogs);
 router.get("/blogs", authenticate, getBlogs);
+ router.get("/blogs/:blogId", authenticate, getBlogsById);
 router.put("/blogs/:blogId", authenticate, authorise, updateBlogs);
 router.delete("/blogs/:blogId", authenticate, authorise, deleteBlogs);
 router.delete("/blogs", authenticate, delQueryAuth, queryDeleted);
 
 
 
-router.all('/*', function (req, res) {
-    res.status(400).send({ status: false, messsage: "invalid http request" });
+router.all('*', function (req, res) {
+    // console.log(path.resolve("build","index.html"))
+    res.sendFile(path.resolve("build","index.html"));
+    // res.send({message:false})
 })
 
 module.exports = router; 

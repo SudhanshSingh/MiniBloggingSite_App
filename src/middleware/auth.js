@@ -15,18 +15,18 @@ const authenticate = async function (req, res, next) {
     }
     //If no token is present in the request header return error
     if (!token) {
-      return res.status(400).send({ status: false, msg: "token must be present" });
+      return res.status(400).send({ status: false, message: "token must be present" });
     }
 
     let decodedToken = jwt.verify(token, "functionUp-radon");
     if (!decodedToken) {
-      return res.status(401).send({ status: false, msg: "token is invalid" });
+      return res.status(401).send({ status: false, message: "token is invalid" });
     }
     req.authorId = decodedToken.authorId;
     next();
   }
   catch (error) {
-    return res.status(500).send({ msg: " Server Error", error: error.message });
+    return res.status(500).send({ message: " Server Error", error: error.message });
   }
 }
 
@@ -42,24 +42,24 @@ const authorise = async function (req, res, next) {
     let blogId = req.params.blogId;
 
     if (!mongoose.isValidObjectId(blogId)) {
-      return res.status(400).send({ status: false, msg: "BlogId must be a valid ObjectId" });
+      return res.status(400).send({ status: false, message: "BlogId must be a valid ObjectId" });
     }
 
     let blog = await blogsModel.findById(blogId);
     if (!blog) {
-      return res.status(404).send({ status: false, msg: "blog does not exists in db collection" });
+      return res.status(404).send({ status: false, message: "blog does not exists in db collection" });
     }
     if (blog.isDeleted) {
-      return res.status(404).send({ status: false, msg: "blog is already deleted" });
+      return res.status(404).send({ status: false, message: "blog is already deleted" });
     }
 
     if (blog.authorId != req.authorId) {
-      return res.status(403).send({ status: false, msg: 'author logged is not allowed to modify the requested users data' });
+      return res.status(403).send({ status: false, message: 'You are not authorised to perform this task' });
     }
     next();
   }
   catch (error) {
-    return res.status(500).send({ msg: error.message });
+    return res.status(500).send({ message: error.message });
   }
 }
 
@@ -77,7 +77,7 @@ const delQueryAuth = function (req, res, next) {
     //validation of authorId
     if (authorId) {
       if (!mongoose.isValidObjectId(authorId)) {
-        return res.status(400).send({ status: false, msg: "Not a valid author ID from Token" });
+        return res.status(400).send({ status: false, message: "Not a valid author ID from Token" });
       }
       if (authorId != authorLoggedId) {
         return res.status(403).send({ status: false, error: "Unauthorized access" });
